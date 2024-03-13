@@ -1,11 +1,9 @@
 fun main() {
     var myField = Array(10) { Array(10) { 0 } }
     var pcField = Array(10) { Array(10) { 0 } }
-
-
     var countPlayersShipDecks = 0
-    val predicate: (Int) -> Boolean = { it == 1 }
 
+//    val predicate: (Int) -> Boolean = { it == 1 }
 
     while (countPlayersShipDecks < 3) {
         if (createOneDeckShip(myField)) {
@@ -14,9 +12,7 @@ fun main() {
             continue
         }
     }
-
     printMyField(myField)
-
 }
 
 fun createOneDeckShip(myField: Array<Array<Int>>): Boolean {
