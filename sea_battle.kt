@@ -1,23 +1,21 @@
 fun main() {
     var myField = Array(10) { Array(10) { 0 } }
     var pcField = Array(10) { Array(10) { 0 } }
-    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
 
-    printMyField(letterArray, myField)
 
-    var countShipsDecks = 0
+    var countPlayersShipDecks = 0
     val predicate: (Int) -> Boolean = { it == 1 }
 
 
-    while (countShipsDecks < 3) {
+    while (countPlayersShipDecks < 3) {
         if (createOneDeckShip(myField)) {
-            countShipsDecks++
+            countPlayersShipDecks++
         } else {
             continue
         }
     }
 
-    printMyField(letterArray, myField)
+    printMyField(myField)
 
 }
 
@@ -25,40 +23,43 @@ fun createOneDeckShip(myField: Array<Array<Int>>): Boolean {
 
     val r1 = (0..9).random()
     val r2 = (0..9).random()
+    val r1Range = (r1 - 1..r1 + 1)
+    val r2Range = (r2 - 1..r2 + 1)
 
-    for (r in (r1 - 1..r1 + 1)) {
-        for (l in (r2 - 1..r2 + 1)) {
-            if (r1 - 1 >= 0 && r2 - 1 >= 0 && r1 + 1 <= 9 && r2 + 1 <= 9) {
+    for (r in r1Range) {
+        for (l in r2Range) {
+            if (r >= 0 && l >= 0 && r <= 9 && l <= 9) {
                 if (myField[r][l] == 0) {
                     continue
                 } else {
                     return false
                 }
+            } else {
+                continue
             }
         }
     }
 
-    for (r in (r1 - 1..r1 + 1)) {
-        for (l in (r2 - 1..r2 + 1)) {
-            if (r1 - 1 >= 0 && r2 - 1 >= 0 && r1 + 1 <= 9 && r2 + 1 <= 9) {
+    for (r in r1Range) {
+        for (l in r2Range) {
+            if (r >= 0 && l >= 0 && r <= 9 && l <= 9) {
                 if (r != r1 || l != r2) {
                     myField[r][l] = 2
-                }
-                if (r == r1 && l == r2) {
+                } else {
                     myField[r][l] = 1
                 }
             } else {
                 continue
             }
-
         }
     }
     return true
 }
 
 
-fun printMyField(letterArray: CharArray, myField: Array<Array<Int>>) {
+fun printMyField(myField: Array<Array<Int>>) {
 
+    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
     var number0 = 0
     var number1 = 1
 
