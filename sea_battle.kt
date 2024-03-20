@@ -1,112 +1,188 @@
+import javax.swing.table.TableColumn
+
 fun main() {
     val myField = Array(10) { Array(10) { 0 } }
     val pcField = Array(10) { Array(10) { 0 } }
-    var win = false
-    var myShipsCounter = 0
-    var pcShipsCounter = 0
-//    val oneDeckShipAmount = 3
-//    val twoDeckShipAmount = 2
-//    val threeDeckShipAmount = 1
-//    val fourDeckShipAmount = 1
+
+    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+
+    var oneDeckShipsCounter = 0
+    var twoDeckShipsCounter = 0
+    var threeDeckShipsCounter = 0
+    var fourDeckShipsCounter = 0
+
+    val oneDeckShipAmount = 3
+    val twoDeckShipAmount = 2
+    val threeDeckShipAmount = 1
+    val fourDeckShipAmount = 1
 
 //    val predicate: (Int) -> Boolean = { it == 1 }
 
-
-    while (myShipsCounter < 3) {
+    while (oneDeckShipsCounter < oneDeckShipAmount) {
         if (createOneDeckShip(myField)) {
-            myShipsCounter++
+            oneDeckShipsCounter++
         } else continue
     }
-    while (pcShipsCounter < 3) {
+    oneDeckShipsCounter = 0
+    while (oneDeckShipsCounter < oneDeckShipAmount) {
         if (createOneDeckShip(pcField)) {
-            pcShipsCounter++
+            oneDeckShipsCounter++
         } else continue
     }
-    while (myShipsCounter < 5) {
+
+    while (twoDeckShipsCounter < twoDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createTwoDeckShipColumn(myField)) {
-                myShipsCounter++
+                twoDeckShipsCounter++
             } else continue
         } else {
             if (createTwoDeckShipRow(myField)) {
-                myShipsCounter++
+                twoDeckShipsCounter++
             } else continue
         }
     }
-    while (pcShipsCounter < 5) {
+    twoDeckShipsCounter = 0
+    while (twoDeckShipsCounter < twoDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createTwoDeckShipColumn(pcField)) {
-                pcShipsCounter++
+                twoDeckShipsCounter++
             } else continue
         } else {
             if (createTwoDeckShipRow(pcField)) {
-                pcShipsCounter++
+                twoDeckShipsCounter++
             } else continue
         }
     }
-    while (myShipsCounter < 6) {
+
+    while (threeDeckShipsCounter < threeDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createThreeDeckShipColumn(myField)) {
-                myShipsCounter++
+                threeDeckShipsCounter++
             } else continue
         } else {
             if (createThreeDeckShipRow(myField)) {
-                myShipsCounter++
+                threeDeckShipsCounter++
             } else continue
         }
     }
-    while (pcShipsCounter < 6) {
+    threeDeckShipsCounter = 0
+    while (threeDeckShipsCounter < threeDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createThreeDeckShipColumn(pcField)) {
-                pcShipsCounter++
+                threeDeckShipsCounter++
             } else continue
         } else {
             if (createThreeDeckShipRow(pcField)) {
-                pcShipsCounter++
+                threeDeckShipsCounter++
             } else continue
         }
     }
-    while (myShipsCounter < 7) {
+
+    while (fourDeckShipsCounter < fourDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createFourDeckShipColumn(myField)) {
-                myShipsCounter++
+                fourDeckShipsCounter++
             } else continue
         } else {
             if (createFourDeckShipRow(myField)) {
-                myShipsCounter++
+                fourDeckShipsCounter++
             } else continue
         }
     }
-    while (pcShipsCounter < 7) {
+    fourDeckShipsCounter = 0
+    while (fourDeckShipsCounter < fourDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
             if (createFourDeckShipColumn(pcField)) {
-                pcShipsCounter++
+                fourDeckShipsCounter++
             } else continue
         } else {
             if (createFourDeckShipRow(pcField)) {
-                pcShipsCounter++
+                fourDeckShipsCounter++
             } else continue
         }
     }
 
-printField(myField)
+    printField(myField)
 
-//    while (!win) {
-//
-//
-//
-//
-//    }
+    while () {
+        val turn = 0..1
+        if (turn.random() == 0) {
+            println("Введите координаты для выстрела:")
+            val myTurn = readln()
+            if (checkReadLine(myTurn)) {
+                myTurn.toCharArray()
+                val column = letterArray.indexOf(myTurn[0])
+                val row = myTurn[1].digitToInt() - 1
+                if (pcField[row][column] == 1) {
+                    pcField[row][column] = 8
 
+                } else {
+                    println("Мимо!")
 
+                }
+            } else {
+
+            }
+        }
+    }
 }
 
+fun checkMyShoot(field: Array<Array<Int>>, row: Int, column: Int) {
+    if (field[row][column] == 1) {
+        val minRowIndex = if (row - 1 < 0) 0 else row - 1
+        val maxRowIndex = if (row + 1 > 9) 9 else row + 1
+
+        val minColumnIndex = if (column - 1 < 0) 0 else column - 1
+        val maxColumIndex = if (column + 1 > 9) 9 else column + 1
+
+        val rowIndexRange = minRowIndex..maxRowIndex
+        val columnIndexRange = minColumnIndex..maxColumIndex
+
+        for (x in rowIndexRange) {
+            for (y in columnIndexRange) {
+                if (field[x][y] == 1) {
+                    if (x == row && y == column) {
+                        continue
+                    } else {
+                        println("Ранил!")
+                        break
+                    }
+                } else continue
+            }
+        }
+        field[row][column] = 8
+    } else {
+        println("Мимо!")
+    }
+}
+
+fun checkReadLine(myTurn: String): Boolean {
+    if (myTurn.length == 2) {
+        myTurn.toCharArray()
+        val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+        if (myTurn[0] in letterArray) {
+            val myTurnRow = myTurn[1].digitToInt()
+            if (myTurnRow in 0..9) {
+                return true
+            } else {
+                println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
+                return false
+            }
+        } else {
+            println("Первый символ не соответсвует формату \"Буква от 'А' до 'К'\"")
+            return false
+        }
+    } else {
+        println("Нужно ввести два символа в формате \"Буква колонки номер строки\"")
+        return false
+    }
+}
 
 fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
 
