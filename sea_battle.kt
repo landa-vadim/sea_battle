@@ -1,10 +1,9 @@
-import javax.swing.table.TableColumn
-
 fun main() {
     val myField = Array(10) { Array(10) { 0 } }
     val pcField = Array(10) { Array(10) { 0 } }
 
     val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+    val turn = 0..1
 
     var oneDeckShipsCounter = 0
     var twoDeckShipsCounter = 0
@@ -17,6 +16,8 @@ fun main() {
     val fourDeckShipAmount = 1
 
 //    val predicate: (Int) -> Boolean = { it == 1 }
+
+//    ЦИКЛЫ ПОСТРОЕНИЯ ПОЛЕЙ С КОРОБЛЯМИ
 
     while (oneDeckShipsCounter < oneDeckShipAmount) {
         if (createOneDeckShip(myField)) {
@@ -110,30 +111,92 @@ fun main() {
 
     printField(myField)
 
-    while () {
-        val turn = 0..1
+//    ХОДЫ
+
+    while (checkLastShip(myField)) {
         if (turn.random() == 0) {
-            println("Введите координаты для выстрела:")
-            val myTurn = readln()
-            if (checkReadLine(myTurn)) {
-                myTurn.toCharArray()
-                val column = letterArray.indexOf(myTurn[0])
-                val row = myTurn[1].digitToInt() - 1
-                if (pcField[row][column] == 1) {
-                    pcField[row][column] = 8
-
-                } else {
-                    println("Мимо!")
-
-                }
-            } else {
-
+            while (myTurn(pcField)) {
+                continue
+            }
+//            while (pcTurn(myField)) {
+//                continue
+//            }
+        } else {
+//            while (pcTurn(myField)) {
+//                continue
+//            }
+            while (myTurn(pcField)) {
+                continue
             }
         }
+        continue
     }
 }
 
-fun checkMyShoot(field: Array<Array<Int>>, row: Int, column: Int) {
+// ФУНКЦИЯ МОЕГО ХОДА
+
+fun myTurn(field: Array<Array<Int>>): Boolean {
+    println("Введите координаты для выстрела:")
+    val myTurn = readln()
+    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+    if (checkReadLine(myTurn)) {
+        myTurn.toCharArray()
+        val column = letterArray.indexOf(myTurn[0])
+        val row = myTurn[1].digitToInt() - 1
+        if (field[row][column] != 8) {
+            if (checkShoot(field, row, column)) {
+                field[row][column] = 8
+                return true
+            } else {
+                println("Мимо!")
+                return false
+            }
+        } else {
+            println("Вы уже сюда стреляли!")
+            return false
+        }
+    } else {
+        return false
+    }
+}
+
+// ФУНКЦИЯ ХОДА ПК
+
+//fun pcTurn(field: Array<Array<Int>>): Boolean {
+//    val rowIndex = (0..9).random()
+//    val columnIndex = (0..9).random()
+//
+//    if () {
+//
+//
+//        if (checkMyShoot(field, row, column)) {
+//            field[row][column] = 8
+//            return true
+//        } else {
+//            println("Мимо!")
+//            return false
+//        }
+//    } else {
+//        return false
+//    }
+//}
+
+// ФУНКЦИЯ ПРОВЕРКИ НА МОЙ ПРОИГРЫШ
+
+fun checkLastShip(field: Array<Array<Int>>): Boolean {
+    for (x in 0..9) {
+        for (y in 0..9) {
+            if (field[x][y] == 1) {
+                return true
+            } else continue
+        }
+    }
+    return false
+}
+
+// ФУНКЦИЯ ПРОВЕРКИ ТОЧНОСТИ ВЫСТРЕЛА
+
+fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
     if (field[row][column] == 1) {
         val minRowIndex = if (row - 1 < 0) 0 else row - 1
         val maxRowIndex = if (row + 1 > 9) 9 else row + 1
@@ -156,19 +219,21 @@ fun checkMyShoot(field: Array<Array<Int>>, row: Int, column: Int) {
                 } else continue
             }
         }
-        field[row][column] = 8
+        return true
     } else {
-        println("Мимо!")
+        return false
     }
 }
+
+// ФУНКЦИЯ ПРОВЕРКИ КОРРЕКТНОСТИ ВВЕДЕННЫХ КООРДИНАТ
 
 fun checkReadLine(myTurn: String): Boolean {
     if (myTurn.length == 2) {
         myTurn.toCharArray()
         val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+        val numbersArray = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
         if (myTurn[0] in letterArray) {
-            val myTurnRow = myTurn[1].digitToInt()
-            if (myTurnRow in 0..9) {
+            if (myTurn[1] in numbersArray) {
                 return true
             } else {
                 println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
@@ -183,6 +248,8 @@ fun checkReadLine(myTurn: String): Boolean {
         return false
     }
 }
+
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 1-ПАЛУБНЫХ КОРАБЛЕЙ
 
 fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
 
@@ -225,6 +292,8 @@ fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
     }
 }
 
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 2-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
+
 fun createTwoDeckShipColumn(field: Array<Array<Int>>): Boolean {
 
     val rowIndex = (0..9).random()
@@ -265,6 +334,8 @@ fun createTwoDeckShipColumn(field: Array<Array<Int>>): Boolean {
         return false
     }
 }
+
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 2-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
 
 fun createTwoDeckShipRow(field: Array<Array<Int>>): Boolean {
 
@@ -307,6 +378,8 @@ fun createTwoDeckShipRow(field: Array<Array<Int>>): Boolean {
     }
 }
 
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 3-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
+
 fun createThreeDeckShipColumn(field: Array<Array<Int>>): Boolean {
 
     val rowIndex = (0..9).random()
@@ -347,6 +420,8 @@ fun createThreeDeckShipColumn(field: Array<Array<Int>>): Boolean {
         return false
     }
 }
+
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 3-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
 
 fun createThreeDeckShipRow(field: Array<Array<Int>>): Boolean {
 
@@ -389,6 +464,7 @@ fun createThreeDeckShipRow(field: Array<Array<Int>>): Boolean {
     }
 }
 
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 4-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
 
 fun createFourDeckShipColumn(field: Array<Array<Int>>): Boolean {
 
@@ -431,6 +507,8 @@ fun createFourDeckShipColumn(field: Array<Array<Int>>): Boolean {
     }
 }
 
+// ФУНКЦИЯ ПОСТОРОЕНИЯ 4-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
+
 fun createFourDeckShipRow(field: Array<Array<Int>>): Boolean {
 
     val rowIndex = (0..6).random()
@@ -472,6 +550,8 @@ fun createFourDeckShipRow(field: Array<Array<Int>>): Boolean {
     }
 }
 
+
+// ФУНКЦИЯ ПЕЧАТИ ПОЛЯ
 
 fun printField(field: Array<Array<Int>>) {
 
