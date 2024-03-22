@@ -123,13 +123,14 @@ fun main() {
                 }
             }
         }
-        continue
-    }
-    if (!checkLastShip(myField)) {
-        println("Вы проиграли!")
-    }
-    if (!checkLastShip(pcField)) {
-        println("Вы выиграли!")
+        if (!checkLastShip(myField)) {
+            println("Вы проиграли!")
+            break
+        }
+        if (!checkLastShip(pcField)) {
+            println("Вы выиграли!")
+            break
+        } else continue
     }
 }
 
