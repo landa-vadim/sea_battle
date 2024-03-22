@@ -2,8 +2,8 @@ fun main() {
     val myField = Array(10) { Array(10) { 0 } }
     val pcField = Array(10) { Array(10) { 0 } }
 
-    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
     val turn = 0..1
+    val whatTurn = turn.random()
 
     var oneDeckShipsCounter = 0
     var twoDeckShipsCounter = 0
@@ -14,10 +14,6 @@ fun main() {
     val twoDeckShipAmount = 2
     val threeDeckShipAmount = 1
     val fourDeckShipAmount = 1
-
-    var deckAmount = 0
-
-//    val predicate: (Int) -> Boolean = { it == 1 }
 
 //    ЦИКЛЫ ПОСТРОЕНИЯ ПОЛЕЙ С КОРОБЛЯМИ
 
@@ -33,8 +29,7 @@ fun main() {
         } else continue
     }
     while (twoDeckShipsCounter < twoDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(myField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
@@ -46,8 +41,7 @@ fun main() {
     }
     twoDeckShipsCounter = 0
     while (twoDeckShipsCounter < twoDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(pcField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
@@ -58,8 +52,7 @@ fun main() {
         }
     }
     while (threeDeckShipsCounter < threeDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(myField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
@@ -71,8 +64,7 @@ fun main() {
     }
     threeDeckShipsCounter = 0
     while (threeDeckShipsCounter < threeDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(pcField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
@@ -84,8 +76,7 @@ fun main() {
     }
 
     while (fourDeckShipsCounter < fourDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(myField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
@@ -97,8 +88,7 @@ fun main() {
     }
     fourDeckShipsCounter = 0
     while (fourDeckShipsCounter < fourDeckShipAmount) {
-        val shipSide = 0..1
-        if (shipSide.random() == 0) {
+        if (turn.random() == 0) {
             if (createShipsColumn(pcField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
@@ -111,25 +101,35 @@ fun main() {
 
     printField(myField)
 
+    printField(pcField)
+
 //    ХОДЫ
 
     while (checkLastShip(myField)) {
-        if (turn.random() == 0) {
-            while (myTurn(pcField)) {
-                continue
-            }
-//            while (pcTurn(myField)) {
-//                continue
-//            }
-        } else {
-//            while (pcTurn(myField)) {
-//                continue
-//            }
-            while (myTurn(pcField)) {
-                continue
+        while (checkLastShip(pcField)) {
+            if (whatTurn == 0) {
+                while (myTurn(pcField)) {
+                    continue
+                }
+                while (pcTurn(myField)) {
+                    continue
+                }
+            } else {
+                while (pcTurn(myField)) {
+                    continue
+                }
+                while (myTurn(pcField)) {
+                    continue
+                }
             }
         }
         continue
+    }
+    if (!checkLastShip(myField)) {
+        println("Вы проиграли!")
+    }
+    if (!checkLastShip(pcField)) {
+        println("Вы выиграли!")
     }
 }
 
@@ -181,26 +181,34 @@ fun myTurn(field: Array<Array<Int>>): Boolean {
 
 // ФУНКЦИЯ ХОДА ПК
 
-//fun pcTurn(field: Array<Array<Int>>): Boolean {
-//    val rowIndex = (0..9).random()
-//    val columnIndex = (0..9).random()
-//
-//    if () {
-//
-//
-//        if (checkMyShoot(field, row, column)) {
-//            field[row][column] = 8
-//            return true
-//        } else {
-//            println("Мимо!")
-//            return false
-//        }
-//    } else {
-//        return false
-//    }
-//}
+fun pcTurn(field: Array<Array<Int>>): Boolean {
+    val rowIndex = (0..9).random()
+    val columnIndex = (0..9).random()
+    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+    val numbersArray = charArrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9', ' ')
+    if (field[rowIndex][columnIndex] == 8) {
+        return false
+    }
+    val num = numbersArray[rowIndex]
+    val let = letterArray[columnIndex]
+    if (rowIndex == 9) {
+        println()
+        print("ПК бьет в $let")
+        println("10")
+        if (checkShoot(field, rowIndex, columnIndex)) {
+            field[rowIndex][columnIndex] = 8
+            return true
+        } else return false
+    } else {
+        println("ПК бьет в $let$num")
+        if (checkShoot(field, rowIndex, columnIndex)) {
+            field[rowIndex][columnIndex] = 8
+            return true
+        } else return false
+    }
+}
 
-// ФУНКЦИЯ ПРОВЕРКИ НА МОЙ ПРОИГРЫШ
+// ФУНКЦИЯ ПРОВЕРКИ НА ПРОИГРЫШ
 
 fun checkLastShip(field: Array<Array<Int>>): Boolean {
     for (x in 0..9) {
@@ -217,32 +225,69 @@ fun checkLastShip(field: Array<Array<Int>>): Boolean {
 
 fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
     if (field[row][column] == 1) {
-        val minRowIndex = if (row - 1 < 0) 0 else row - 1
-        val maxRowIndex = if (row + 1 > 9) 9 else row + 1
+        val minRowIndex = if (row - 3 < 0) 0 else row - 3
+        val maxRowIndex = if (row + 3 > 9) 9 else row + 3
 
-        val minColumnIndex = if (column - 1 < 0) 0 else column - 1
-        val maxColumIndex = if (column + 1 > 9) 9 else column + 1
+        val minColumnIndex = if (column - 3 < 0) 0 else column - 3
+        val maxColumIndex = if (column + 3 > 9) 9 else column + 3
 
         val rowIndexRange = minRowIndex..maxRowIndex
         val columnIndexRange = minColumnIndex..maxColumIndex
 
         for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 1) {
-                    if (x != row || y != column) {
-                        if (x == row || y == column) {
-                            println("Ранил!")
+            if (field[x][column] == 1) {
+                if (x == row) {
+                    continue
+                }
+                if (x == row - 1 || x == row + 1) {
+                    println("Ранил!")
+                    return true
+                }
+                if (x < row) {
+                    for (x1 in x until row) {
+                        if (field[x1][column] == 2) {
                             break
-                        } else {
-                            continue
-                        }
-                    } else continue
-
-                } else continue
-            }
+                        } else continue
+                    }
+                }
+                if (x > row) {
+                    for (x1 in row + 1..x) {
+                        if (field[x1][column] == 2) {
+                            break
+                        } else continue
+                    }
+                }
+            } else continue
         }
+        for (y in columnIndexRange) {
+            if (field[row][y] == 1) {
+                if (y == column) {
+                    continue
+                }
+                if (y == column - 1 || y == column + 1) {
+                    println("Ранил!")
+                    return true
+                }
+                if (y < column) {
+                    for (y1 in y until column) {
+                        if (field[row][y1] == 2) {
+                            break
+                        } else continue
+                    }
+                }
+                if (y > column) {
+                    for (y1 in column + 1..y) {
+                        if (field[row][y1] == 2) {
+                            break
+                        } else continue
+                    }
+                }
+            } else continue
+        }
+        println("Убил!")
         return true
     } else {
+        println("Мимо!")
         return false
     }
 }
@@ -250,40 +295,38 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
 // ФУНКЦИЯ ПРОВЕРКИ КОРРЕКТНОСТИ ВВЕДЕННЫХ КООРДИНАТ
 
 fun checkReadLine(myTurn: String): Boolean {
-    if (myTurn.length == 2 || myTurn.length == 3) {
-        if (myTurn.length == 2) {
-            myTurn.toCharArray()
-            val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
-            val numbersArray = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-            if (myTurn[0] in letterArray) {
-                if (myTurn[1] in numbersArray) {
-                    return true
-                } else {
-                    println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
-                    return false
-                }
+    if (myTurn.length == 2) {
+        myTurn.toCharArray()
+        val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+        val numbersArray = charArrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9')
+        if (myTurn[0] in letterArray) {
+            if (myTurn[1] in numbersArray) {
+                return true
             } else {
-                println("Первый символ не соответсвует формату \"Буква от 'А' до 'К'\"")
+                println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
                 return false
             }
+        } else {
+            println("Первый символ не соответсвует формату \"Буква от 'А' до 'К'\"")
+            return false
         }
-        if (myTurn.length == 3) {
-            myTurn.toCharArray()
-            val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
-            val charZero = '0'
-            val charOne = '1'
-            if (myTurn[0] in letterArray) {
-                if (myTurn[1] == charOne && myTurn[2] == charZero) {
-                    return true
-                } else {
-                    println("Введенный номер строки не соответствует существующему")
-                    return false
-                }
+    }
+    if (myTurn.length == 3) {
+        myTurn.toCharArray()
+        val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+        val charZero = '0'
+        val charOne = '1'
+        if (myTurn[0] in letterArray) {
+            if (myTurn[1] == charOne && myTurn[2] == charZero) {
+                return true
             } else {
-                println("Нужно ввести два или три символа в формате \"Буква колонки номер строки\"")
+                println("Введенный номер строки не соответствует существующему")
                 return false
             }
-        } else return false
+        } else {
+            println("Нужно ввести два или три символа в формате \"Буква колонки номер строки\"")
+            return false
+        }
     } else {
         println("Нужно ввести два или три символа в формате \"Буква колонки номер строки\"")
         return false
