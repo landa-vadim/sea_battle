@@ -105,34 +105,31 @@ fun main() {
 
 //    ХОДЫ
 
-    while (checkLastShip(myField)) {
-        while (checkLastShip(pcField)) {
-            if (whatTurn == 0) {
-                while (myTurn(pcField)) {
-                    continue
-                }
-                while (pcTurn(myField)) {
-                    continue
-                }
-            } else {
-                while (pcTurn(myField)) {
-                    continue
-                }
-                while (myTurn(pcField)) {
-                    continue
-                }
+    while (checkLastShip(myField) && checkLastShip(pcField)) {
+        if (whatTurn == 0) {
+            while (myTurn(pcField) && checkLastShip(pcField)) {
+                continue
+            }
+            while (pcTurn(myField) && checkLastShip(myField)) {
+                continue
+            }
+        } else {
+            while (pcTurn(myField) && checkLastShip(pcField)) {
+                continue
+            }
+            while (myTurn(pcField) && checkLastShip(myField)) {
+                continue
             }
         }
-        if (!checkLastShip(myField)) {
-            println("Вы проиграли!")
-            break
-        }
-        if (!checkLastShip(pcField)) {
-            println("Вы выиграли!")
-            break
-        } else continue
+    }
+    if (!checkLastShip(myField)) {
+        println("Вы проиграли!")
+    }
+    if (!checkLastShip(pcField)) {
+        println("Вы выиграли!")
     }
 }
+
 
 // ФУНКЦИЯ МОЕГО ХОДА
 
