@@ -15,6 +15,8 @@ fun main() {
     val threeDeckShipAmount = 1
     val fourDeckShipAmount = 1
 
+    var deckAmount = 0
+
 //    val predicate: (Int) -> Boolean = { it == 1 }
 
 //    ЦИКЛЫ ПОСТРОЕНИЯ ПОЛЕЙ С КОРОБЛЯМИ
@@ -30,15 +32,14 @@ fun main() {
             oneDeckShipsCounter++
         } else continue
     }
-
     while (twoDeckShipsCounter < twoDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createTwoDeckShipColumn(myField)) {
+            if (createShipsColumn(myField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
         } else {
-            if (createTwoDeckShipRow(myField)) {
+            if (createShipsRow(myField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
         }
@@ -47,24 +48,23 @@ fun main() {
     while (twoDeckShipsCounter < twoDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createTwoDeckShipColumn(pcField)) {
+            if (createShipsColumn(pcField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
         } else {
-            if (createTwoDeckShipRow(pcField)) {
+            if (createShipsRow(pcField, deckAmount = 2)) {
                 twoDeckShipsCounter++
             } else continue
         }
     }
-
     while (threeDeckShipsCounter < threeDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createThreeDeckShipColumn(myField)) {
+            if (createShipsColumn(myField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         } else {
-            if (createThreeDeckShipRow(myField)) {
+            if (createShipsRow(myField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         }
@@ -73,11 +73,11 @@ fun main() {
     while (threeDeckShipsCounter < threeDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createThreeDeckShipColumn(pcField)) {
+            if (createShipsColumn(pcField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         } else {
-            if (createThreeDeckShipRow(pcField)) {
+            if (createShipsRow(pcField, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         }
@@ -86,11 +86,11 @@ fun main() {
     while (fourDeckShipsCounter < fourDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createFourDeckShipColumn(myField)) {
+            if (createShipsColumn(myField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         } else {
-            if (createFourDeckShipRow(myField)) {
+            if (createShipsRow(myField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         }
@@ -99,11 +99,11 @@ fun main() {
     while (fourDeckShipsCounter < fourDeckShipAmount) {
         val shipSide = 0..1
         if (shipSide.random() == 0) {
-            if (createFourDeckShipColumn(pcField)) {
+            if (createShipsColumn(pcField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         } else {
-            if (createFourDeckShipRow(pcField)) {
+            if (createShipsRow(pcField, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         }
@@ -140,21 +140,40 @@ fun myTurn(field: Array<Array<Int>>): Boolean {
     val myTurn = readln()
     val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
     if (checkReadLine(myTurn)) {
-        myTurn.toCharArray()
-        val column = letterArray.indexOf(myTurn[0])
-        val row = myTurn[1].digitToInt() - 1
-        if (field[row][column] != 8) {
-            if (checkShoot(field, row, column)) {
-                field[row][column] = 8
-                return true
+        if (myTurn.length == 2) {
+            myTurn.toCharArray()
+            val column = letterArray.indexOf(myTurn[0])
+            val row = myTurn[1].digitToInt() - 1
+            if (field[row][column] != 8) {
+                if (checkShoot(field, row, column)) {
+                    field[row][column] = 8
+                    return true
+                } else {
+                    println("Мимо!")
+                    return false
+                }
             } else {
-                println("Мимо!")
+                println("Вы уже сюда стреляли!")
                 return false
             }
-        } else {
-            println("Вы уже сюда стреляли!")
-            return false
         }
+        if (myTurn.length == 3) {
+            myTurn.toCharArray()
+            val column = letterArray.indexOf(myTurn[0])
+            val row = 9
+            if (field[row][column] != 8) {
+                if (checkShoot(field, row, column)) {
+                    field[row][column] = 8
+                    return true
+                } else {
+                    println("Мимо!")
+                    return false
+                }
+            } else {
+                println("Вы уже сюда стреляли!")
+                return false
+            }
+        } else return false
     } else {
         return false
     }
@@ -210,12 +229,15 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
                 if (field[x][y] == 1) {
-                    if (x == row && y == column) {
-                        continue
-                    } else {
-                        println("Ранил!")
-                        break
-                    }
+                    if (x != row || y != column) {
+                        if (x == row || y == column) {
+                            println("Ранил!")
+                            break
+                        } else {
+                            continue
+                        }
+                    } else continue
+
                 } else continue
             }
         }
@@ -228,328 +250,45 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
 // ФУНКЦИЯ ПРОВЕРКИ КОРРЕКТНОСТИ ВВЕДЕННЫХ КООРДИНАТ
 
 fun checkReadLine(myTurn: String): Boolean {
-    if (myTurn.length == 2) {
-        myTurn.toCharArray()
-        val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
-        val numbersArray = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-        if (myTurn[0] in letterArray) {
-            if (myTurn[1] in numbersArray) {
-                return true
+    if (myTurn.length == 2 || myTurn.length == 3) {
+        if (myTurn.length == 2) {
+            myTurn.toCharArray()
+            val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+            val numbersArray = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+            if (myTurn[0] in letterArray) {
+                if (myTurn[1] in numbersArray) {
+                    return true
+                } else {
+                    println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
+                    return false
+                }
             } else {
-                println("Второй символ не соответсвует формату \"Цифра от 0 до 9\"")
+                println("Первый символ не соответсвует формату \"Буква от 'А' до 'К'\"")
                 return false
             }
-        } else {
-            println("Первый символ не соответсвует формату \"Буква от 'А' до 'К'\"")
-            return false
         }
-    } else {
-        println("Нужно ввести два символа в формате \"Буква колонки номер строки\"")
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 1-ПАЛУБНЫХ КОРАБЛЕЙ
-
-fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..9).random()
-    val columnIndex = (0..9).random()
-
-    if (field[rowIndex][columnIndex] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
+        if (myTurn.length == 3) {
+            myTurn.toCharArray()
+            val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
+            val charZero = '0'
+            val charOne = '1'
+            if (myTurn[0] in letterArray) {
+                if (myTurn[1] == charOne && myTurn[2] == charZero) {
+                    return true
                 } else {
+                    println("Введенный номер строки не соответствует существующему")
                     return false
                 }
+            } else {
+                println("Нужно ввести два или три символа в формате \"Буква колонки номер строки\"")
+                return false
             }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x != rowIndex || y != columnIndex) {
-                    field[x][y] = 2
-                } else {
-                    field[x][y] = 1
-                }
-            }
-        }
-        return true
+        } else return false
     } else {
+        println("Нужно ввести два или три символа в формате \"Буква колонки номер строки\"")
         return false
     }
 }
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 2-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
-
-fun createTwoDeckShipColumn(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..9).random()
-    val columnIndex = (0..8).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 1 == 9) 9 else columnIndex + 2
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 2-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
-
-fun createTwoDeckShipRow(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..8).random()
-    val columnIndex = (0..9).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 1 == 9) 9 else rowIndex + 2
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 3-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
-
-fun createThreeDeckShipColumn(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..9).random()
-    val columnIndex = (0..7).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0 && field[rowIndex][columnIndex + 2] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 2 == 9) 9 else columnIndex + 3
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1 || x == rowIndex && y == columnIndex + 2) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 3-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
-
-fun createThreeDeckShipRow(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..7).random()
-    val columnIndex = (0..9).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0 && field[rowIndex + 2][columnIndex] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 2 == 9) 9 else rowIndex + 3
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex || x == rowIndex + 2 && y == columnIndex) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 4-ПАЛУБНЫХ КОРАБЛЕЙ В КОЛОНКУ
-
-fun createFourDeckShipColumn(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..9).random()
-    val columnIndex = (0..6).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0 && field[rowIndex][columnIndex + 2] == 0 && field[rowIndex][columnIndex + 3] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 3 == 9) 9 else columnIndex + 4
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1 || x == rowIndex && y == columnIndex + 2 || x == rowIndex && y == columnIndex + 3) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
-// ФУНКЦИЯ ПОСТОРОЕНИЯ 4-ПАЛУБНЫХ КОРАБЛЕЙ В ЛИНИЮ
-
-fun createFourDeckShipRow(field: Array<Array<Int>>): Boolean {
-
-    val rowIndex = (0..6).random()
-    val columnIndex = (0..9).random()
-
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0 && field[rowIndex + 2][columnIndex] == 0 && field[rowIndex + 3][columnIndex] == 0) {
-
-        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
-        val maxRowIndex = if (rowIndex + 3 == 9) 9 else rowIndex + 4
-
-        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
-        val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
-                    continue
-                } else {
-                    return false
-                }
-            }
-        }
-
-        for (x in rowIndexRange) {
-            for (y in columnIndexRange) {
-                if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex || x == rowIndex + 2 && y == columnIndex || x == rowIndex + 3 && y == columnIndex) {
-                    field[x][y] = 1
-                } else {
-                    field[x][y] = 2
-                }
-            }
-        }
-        return true
-    } else {
-        return false
-    }
-}
-
 
 // ФУНКЦИЯ ПЕЧАТИ ПОЛЯ
 
@@ -583,3 +322,290 @@ fun printField(field: Array<Array<Int>>) {
     }
 }
 
+// ФУНКЦИЯ ПОСТРОЕНИЯ 1-ПАЛУБНЫХ КОРАБЛЕЙ
+
+fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
+
+    val rowIndex = (0..9).random()
+    val columnIndex = (0..9).random()
+
+    if (field[rowIndex][columnIndex] == 0) {
+
+        val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+        val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
+
+        val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+        val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
+
+        val rowIndexRange = minRowIndex..maxRowIndex
+        val columnIndexRange = minColumnIndex..maxColumIndex
+
+        for (x in rowIndexRange) {
+            for (y in columnIndexRange) {
+                if (field[x][y] == 0 || field[x][y] == 2) {
+                    continue
+                } else {
+                    return false
+                }
+            }
+        }
+        for (x in rowIndexRange) {
+            for (y in columnIndexRange) {
+                if (x != rowIndex || y != columnIndex) {
+                    field[x][y] = 2
+                } else {
+                    field[x][y] = 1
+                }
+            }
+        }
+        return true
+    } else {
+        return false
+    }
+}
+
+// ФУНКЦИЯ ПОСТРОЕНИЯ КОРАБЛЕЙ В КОЛОНКУ
+fun createShipsColumn(field: Array<Array<Int>>, deckAmount: Int): Boolean {
+
+    if (deckAmount == 2) {
+        val rowIndex = (0..9).random()
+        val columnIndex = (0..8).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 1 == 9) 9 else columnIndex + 2
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    if (deckAmount == 3) {
+        val rowIndex = (0..9).random()
+        val columnIndex = (0..7).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0 && field[rowIndex][columnIndex + 2] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 2 == 9) 9 else columnIndex + 3
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1 || x == rowIndex && y == columnIndex + 2) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    if (deckAmount == 4) {
+        val rowIndex = (0..9).random()
+        val columnIndex = (0..6).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + 1] == 0 && field[rowIndex][columnIndex + 2] == 0 && field[rowIndex][columnIndex + 3] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 3 == 9) 9 else columnIndex + 4
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex && y == columnIndex + 1 || x == rowIndex && y == columnIndex + 2 || x == rowIndex && y == columnIndex + 3) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    } else {
+        return false
+    }
+}
+
+// ФУНКЦИЯ ПОСТРОЕНИЯ КОРАБЛЕЙ В ЛИНИЮ
+
+fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
+
+    if (deckAmount == 2) {
+        val rowIndex = (0..8).random()
+        val columnIndex = (0..9).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 1 == 9) 9 else rowIndex + 2
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    if (deckAmount == 3) {
+        val rowIndex = (0..7).random()
+        val columnIndex = (0..9).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0 && field[rowIndex + 2][columnIndex] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 2 == 9) 9 else rowIndex + 3
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex || x == rowIndex + 2 && y == columnIndex) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+    if (deckAmount == 4) {
+        val rowIndex = (0..6).random()
+        val columnIndex = (0..9).random()
+
+        if (field[rowIndex][columnIndex] == 0 && field[rowIndex + 1][columnIndex] == 0 && field[rowIndex + 2][columnIndex] == 0 && field[rowIndex + 3][columnIndex] == 0) {
+
+            val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
+            val maxRowIndex = if (rowIndex + 3 == 9) 9 else rowIndex + 4
+
+            val minColumnIndex = if (columnIndex - 1 < 0) 0 else columnIndex - 1
+            val maxColumIndex = if (columnIndex + 1 > 9) 9 else columnIndex + 1
+
+            val rowIndexRange = minRowIndex..maxRowIndex
+            val columnIndexRange = minColumnIndex..maxColumIndex
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (field[x][y] == 0 || field[x][y] == 2) {
+                        continue
+                    } else {
+                        return false
+                    }
+                }
+            }
+
+            for (x in rowIndexRange) {
+                for (y in columnIndexRange) {
+                    if (x == rowIndex && y == columnIndex || x == rowIndex + 1 && y == columnIndex || x == rowIndex + 2 && y == columnIndex || x == rowIndex + 3 && y == columnIndex) {
+                        field[x][y] = 1
+                    } else {
+                        field[x][y] = 2
+                    }
+                }
+            }
+            return true
+        } else {
+            return false
+        }
+    } else {
+        return false
+    }
+}
