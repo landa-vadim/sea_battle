@@ -1,6 +1,8 @@
 fun main() {
     val myField = Array(10) { Array(10) { 0 } }
     val pcField = Array(10) { Array(10) { 0 } }
+    val enemyField = Array(10) { Array(10) { 0 } }
+    val playerField = Array(10) { Array(10) { 0 } }
 
     val turn = 0..1
     val whatTurn = turn.random()
@@ -107,17 +109,25 @@ fun main() {
 
     while (checkLastShip(myField) && checkLastShip(pcField)) {
         if (whatTurn == 0) {
-            while (myTurn(pcField) && checkLastShip(pcField)) {
+            while (myTurn(pcField, enemyField) && checkLastShip(pcField)) {
+                printField(enemyField)
+                printField(pcField)
                 continue
             }
-            while (pcTurn(myField) && checkLastShip(myField)) {
+            while (pcTurn(playerField, myField) && checkLastShip(myField)) {
+                printField(myField)
+                printField(playerField)
                 continue
             }
         } else {
-            while (pcTurn(myField) && checkLastShip(pcField)) {
+            while (pcTurn(playerField, myField) && checkLastShip(pcField)) {
+                printField(myField)
+                printField(playerField)
                 continue
             }
-            while (myTurn(pcField) && checkLastShip(myField)) {
+            while (myTurn(pcField, enemyField) && checkLastShip(myField)) {
+                printField(enemyField)
+                printField(pcField)
                 continue
             }
         }
@@ -133,7 +143,7 @@ fun main() {
 
 // ФУНКЦИЯ МОЕГО ХОДА
 
-fun myTurn(field: Array<Array<Int>>): Boolean {
+fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
     println("Введите координаты для выстрела:")
     val myTurn = readln()
     val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
@@ -142,9 +152,10 @@ fun myTurn(field: Array<Array<Int>>): Boolean {
             myTurn.toCharArray()
             val column = letterArray.indexOf(myTurn[0])
             val row = myTurn[1].digitToInt() - 1
-            if (field[row][column] != 8) {
-                if (checkShoot(field, row, column)) {
-                    field[row][column] = 8
+            if (enemyField[row][column] != 8) {
+                if (checkShoot(pcField, row, column, enemyField)) {
+                    pcField[row][column] = 8
+                    enemyField[row][column] = 8
                     return true
                 } else {
                     println("Мимо!")
@@ -159,9 +170,10 @@ fun myTurn(field: Array<Array<Int>>): Boolean {
             myTurn.toCharArray()
             val column = letterArray.indexOf(myTurn[0])
             val row = 9
-            if (field[row][column] != 8) {
-                if (checkShoot(field, row, column)) {
-                    field[row][column] = 8
+            if (enemyField[row][column] != 8) {
+                if (checkShoot(pcField, row, column, enemyField)) {
+                    pcField[row][column] = 8
+                    enemyField[row][column] = 8
                     return true
                 } else {
                     println("Мимо!")
@@ -179,13 +191,53 @@ fun myTurn(field: Array<Array<Int>>): Boolean {
 
 // ФУНКЦИЯ НАЧАЛЬНОГО ХОДА ПК
 
-fun pcTurn(field: Array<Array<Int>>): Boolean {
-    val rowIndex = (0..9).random()
-    val columnIndex = (0..9).random()
+fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean {
+    var rowIndex = 0
+    var columnIndex = 0
+    if (pcMustExecute(myField, playerField)) {
+        for (x in 0..9) {
+            for (y in 0..9) {
+                if (playerField[x][y] == 8) {
+                    for (c in x - 1..x - 2) {
+                        if (playerField[c][y] == 8) {
+                            rowIndex = c - 1
+                            columnIndex = y
+                            continue
+                        }
+                    }
+                    for (c in x + 1..x + 2) {
+                        if (playerField[c][y] == 8) {
+                            rowIndex = c + 1
+                            columnIndex = y
+                            continue
+                        }
+                    }
+                    for (v in y - 1..y - 2) {
+                        if (playerField[x][v] == 8) {
+                            rowIndex = x
+                            columnIndex = v - 1
+                            continue
+                        }
+                    }
+                    for (v in y + 1..y + 2) {
+                        if (playerField[x][v] == 8) {
+                            rowIndex = x
+                            columnIndex = v + 1
+                            continue
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        rowIndex = (0..9).random()
+        columnIndex = (0..9).random()
+    }
     val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
     val numbersArray = charArrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9', ' ')
-    if (field[rowIndex][columnIndex] == 8) {
-        return false
+    while (playerField[rowIndex][columnIndex] == 8) {
+        rowIndex = (0..9).random()
+        columnIndex = (0..9).random()
     }
     val num = numbersArray[rowIndex]
     val let = letterArray[columnIndex]
@@ -193,46 +245,108 @@ fun pcTurn(field: Array<Array<Int>>): Boolean {
         println()
         print("ПК бьет в $let")
         println("10")
-        if (checkShoot(field, rowIndex, columnIndex)) {
-            field[rowIndex][columnIndex] = 8
-            return true
-        } else return false
     } else {
         println("ПК бьет в $let$num")
-        if (checkShoot(field, rowIndex, columnIndex)) {
-            field[rowIndex][columnIndex] = 8
-            return true
-        } else return false
     }
+    if (checkShoot(myField, rowIndex, columnIndex, playerField)) {
+//        if (!pcMustExecute(myField, playerField)) {
+//            for (x in rowIndex - 3..rowIndex + 3) {
+//                for (y in columnIndex - 3..columnIndex + 3) {
+//                    if (playerField[x][y] == 8) {
+//                        for (c in x - 1..x + 1) {
+//                            for (v in y - 1..y + 1) {
+//                                if (myField[c][v] != 8) {
+//                                    playerField[c][v] = 2
+//                                } else continue
+//                            }
+//                        }
+//                    } else continue
+//                }
+//            }
+//        }
+        return true
+    } else return false
 }
 
-// ФУНКЦИЯ ХОДА ПК ПРИ НАЛИЧИИ РАНЕНОГО КОРАБЛЯ
+// ФУНКЦИЯ ПРОВЕРКИ ПОЛЯ ИГРОКА НА РАНЕНЫЙ КОРАБЛЬ
 
-//fun pcTurnExecute(field: Array<Array<Int>>): Boolean {
-//
-//    val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
-//    val numbersArray = charArrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9', ' ')
-//    if (field[rowIndex][columnIndex] == 8) {
-//        return false
-//    }
-//    val num = numbersArray[rowIndex]
-//    val let = letterArray[columnIndex]
-//    if (rowIndex == 9) {
-//        println()
-//        print("ПК бьет в $let")
-//        println("10")
-//        if (checkShoot(field, rowIndex, columnIndex)) {
-//            field[rowIndex][columnIndex] = 8
-//            return true
-//        } else return false
-//    } else {
-//        println("ПК бьет в $let$num")
-//        if (checkShoot(field, rowIndex, columnIndex)) {
-//            field[rowIndex][columnIndex] = 8
-//            return true
-//        } else return false
-//    }
-//}
+fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): Boolean {
+    for (x in 0..9) {
+        for (y in 0..9) {
+            if (myField[x][y] == 8) {
+                if (myField[x - 1][y] != 2) {
+                    if (myField[x - 1][y] == 1) {
+                        return true
+                    }
+                }
+                if (myField[x - 2][y] != 2) {
+                    if (myField[x - 2][y] == 1) {
+                        return true
+                    }
+                    if (myField[x - 3][y] != 2) {
+                        if (myField[x - 3][y] == 1) {
+                            return true
+                        }
+                    }
+                }
+                if (myField[x + 1][y] != 2) {
+                    if (myField[x + 1][y] == 1) {
+                        return true
+                    }
+                    if (myField[x + 2][y] != 2) {
+                        if (myField[x + 2][y] == 1) {
+                            return true
+                        }
+                        if (myField[x + 3][y] != 2) {
+                            if (myField[x + 3][y] == 1) {
+                                return true
+                            }
+                        }
+                    }
+                }
+                if (myField[x][y - 1] != 2) {
+                    if (myField[x][y - 1] == 1) {
+                        return true
+                    }
+                    if (myField[x][y - 2] != 2) {
+                        if (myField[x][y - 2] == 1) {
+                            return true
+                        }
+                        if (myField[x][y - 3] != 2) {
+                            if (myField[x][y - 3] == 1) {
+                                return true
+                            }
+                        }
+                    }
+                }
+                if (myField[x][y + 1] != 2) {
+                    if (myField[x][y + 1] == 1) {
+                        return true
+                    }
+                    if (myField[x][y + 2] != 2) {
+                        if (myField[x][y + 2] == 1) {
+                            return true
+                        }
+                        if (myField[x][y + 3] != 2) {
+                            if (myField[x][y + 3] == 1) {
+                                return true
+                            }
+                        }
+                    }
+                } else {
+                    for (c in x - 1..x + 1) {
+                        for (v in y - 1..y + 1) {
+                            if (c != x && v != y) {
+                                playerField[c][v] = 2
+                            } else continue
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false
+}
 
 // ФУНКЦИЯ ПРОВЕРКИ НА ПРОИГРЫШ
 
@@ -249,71 +363,104 @@ fun checkLastShip(field: Array<Array<Int>>): Boolean {
 
 // ФУНКЦИЯ ПРОВЕРКИ ТОЧНОСТИ ВЫСТРЕЛА
 
-fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int): Boolean {
+fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Array<Int>>): Boolean {
     if (field[row][column] == 1) {
-        val minRowIndex = if (row - 3 < 0) 0 else row - 3
-        val maxRowIndex = if (row + 3 > 9) 9 else row + 3
+        field[row][column] = 8
+        field2[row][column] = 8
+        val rowMin1 = if (row - 1 < 0) 0 else row - 1
+        val rowMax1 = if (row + 1 > 9) 9 else row + 1
+        val columnMin1 = if (column - 1 < 0) 0 else column - 1
+        val columnMax1 = if (column + 1 > 9) 9 else column + 1
+        val rowMin2 = if (row - 3 < 0) 0 else row - 3
+        val rowMax2 = if (row + 3 > 9) 9 else row + 3
+        val columnMin2 = if (column - 3 < 0) 0 else column - 3
+        val columnMax2 = if (column + 3 > 9) 9 else column + 3
 
-        val minColumnIndex = if (column - 3 < 0) 0 else column - 3
-        val maxColumIndex = if (column + 3 > 9) 9 else column + 3
-
-        val rowIndexRange = minRowIndex..maxRowIndex
-        val columnIndexRange = minColumnIndex..maxColumIndex
-
-        for (x in rowIndexRange) {
-            if (field[x][column] == 1) {
-                if (x == row) {
-                    continue
-                }
-                if (x == row - 1 || x == row + 1) {
+        for (x in rowMin1..rowMin2) {
+            if (field[x][column] != 2) {
+                if (field[x][column] == 1) {
                     println("Ранил!")
                     return true
-                }
-                if (x < row) {
-                    for (x1 in x until row) {
-                        if (field[x1][column] == 2) {
-                            break
-                        } else continue
-                    }
-                }
-                if (x > row) {
-                    for (x1 in row + 1..x) {
-                        if (field[x1][column] == 2) {
-                            break
-                        } else continue
-                    }
-                }
-            } else continue
+                } else continue
+            } else {
+                break
+            }
         }
-        for (y in columnIndexRange) {
-            if (field[row][y] == 1) {
-                if (y == column) {
-                    continue
-                }
-                if (y == column - 1 || y == column + 1) {
+        for (x in rowMax1..rowMax2) {
+            if (field[x][column] != 2) {
+                if (field[x][column] == 1) {
                     println("Ранил!")
                     return true
+                } else continue
+            } else {
+                break
+            }
+        }
+        for (y in columnMin1..columnMin2) {
+            if (field[row][y] != 2) {
+                if (field[row][y] == 1) {
+                    println("Ранил!")
+                    return true
+                } else continue
+            } else {
+                break
+            }
+        }
+        for (y in columnMax1..columnMax2) {
+            if (field[row][y] != 2) {
+                if (field[row][y] == 1) {
+                    println("Ранил!")
+                    return true
+                } else continue
+            } else {
+                break
+            }
+        }
+        for (x in rowMin1..rowMin2) {
+            if (field[x][column] == 8) {
+                for(y in columnMin1..columnMax1) {
+                    field2[x][y] = 2
                 }
-                if (y < column) {
-                    for (y1 in y until column) {
-                        if (field[row][y1] == 2) {
-                            break
-                        } else continue
-                    }
+                continue
+            } else {
+                for(y in columnMin1..columnMax1) {
+                    field2[x][y] = 2
                 }
-                if (y > column) {
-                    for (y1 in column + 1..y) {
-                        if (field[row][y1] == 2) {
-                            break
-                        } else continue
-                    }
+                break
+            }
+        }
+        for (x in rowMax1..rowMax2) {
+            if (field[x][column] == 8) {
+                for(y in columnMin1..columnMax1) {
+                    field2[x][y] = 2
                 }
-            } else continue
+                continue
+            } else {
+                for(y in columnMin1..columnMax1) {
+                    field2[x][y] = 2
+                }
+                break
+            }
+        }
+        for (y in columnMin1..columnMin2) {
+            if (field[row][y] == 8) {
+                for(x in rowMin1..rowMax1) {
+                    field2[x][y] = 2
+                }
+                continue
+            } else {
+                for(x in rowMin1..rowMax1) {
+                    field2[x][y] = 2
+                }
+                break
+            }
         }
         println("Убил!")
         return true
     } else {
         println("Мимо!")
+        field[row][column] = 2
+        field2[row][column] = 2
         return false
     }
 }
@@ -502,7 +649,6 @@ fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
                 }
             }
         }
-
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
                 field[x][y] = 2
