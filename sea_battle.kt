@@ -203,13 +203,14 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
     while (playerField[rowIndex][columnIndex] == 8) {
         rowIndex = (0..9).random()
         columnIndex = (0..9).random()
+
+        println("playerField[$rowIndex][$columnIndex] = ${playerField[rowIndex][columnIndex]}")
     }
     val num = numbersArray[rowIndex]
     val let = letterArray[columnIndex]
     if (rowIndex == 9) {
         println()
-        print("ПК бьет в $let")
-        println("10")
+        println("ПК бьет в ${let}10")
     } else {
         println("ПК бьет в $let$num")
     }
