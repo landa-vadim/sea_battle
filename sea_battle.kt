@@ -181,7 +181,7 @@ fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
                 }
             } else {
                 println("Вы уже сюда стреляли!")
-                return false
+                return true
             }
         } else return false
     } else {
@@ -273,70 +273,34 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
 fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): Boolean {
     for (x in 0..9) {
         for (y in 0..9) {
+            val xMin = if (x - 1 < 0) 0 else x - 1
+            val xMax = if (x + 1 > 9) 9 else x + 1
+            val yMin = if (y - 1 < 0) 0 else y - 1
+            val yMax = if (y + 1 > 9) 9 else y + 1
             if (myField[x][y] == 8) {
-                if (myField[x - 1][y] != 2) {
-                    if (myField[x - 1][y] == 1) {
+                if (myField[xMin][y] != 2) {
+                    if (myField[xMin][y] == 1) {
                         return true
                     }
                 }
-                if (myField[x - 2][y] != 2) {
-                    if (myField[x - 2][y] == 1) {
+                if (myField[xMax][y] != 2) {
+                    if (myField[xMax][y] == 1) {
                         return true
-                    }
-                    if (myField[x - 3][y] != 2) {
-                        if (myField[x - 3][y] == 1) {
-                            return true
-                        }
                     }
                 }
-                if (myField[x + 1][y] != 2) {
-                    if (myField[x + 1][y] == 1) {
+                if (myField[x][yMin] != 2) {
+                    if (myField[x][yMin] == 1) {
                         return true
-                    }
-                    if (myField[x + 2][y] != 2) {
-                        if (myField[x + 2][y] == 1) {
-                            return true
-                        }
-                        if (myField[x + 3][y] != 2) {
-                            if (myField[x + 3][y] == 1) {
-                                return true
-                            }
-                        }
                     }
                 }
-                if (myField[x][y - 1] != 2) {
-                    if (myField[x][y - 1] == 1) {
+                if (myField[x][yMax] != 2) {
+                    if (myField[x][yMax] == 1) {
                         return true
-                    }
-                    if (myField[x][y - 2] != 2) {
-                        if (myField[x][y - 2] == 1) {
-                            return true
-                        }
-                        if (myField[x][y - 3] != 2) {
-                            if (myField[x][y - 3] == 1) {
-                                return true
-                            }
-                        }
-                    }
-                }
-                if (myField[x][y + 1] != 2) {
-                    if (myField[x][y + 1] == 1) {
-                        return true
-                    }
-                    if (myField[x][y + 2] != 2) {
-                        if (myField[x][y + 2] == 1) {
-                            return true
-                        }
-                        if (myField[x][y + 3] != 2) {
-                            if (myField[x][y + 3] == 1) {
-                                return true
-                            }
-                        }
                     }
                 } else {
-                    for (c in x - 1..x + 1) {
-                        for (v in y - 1..y + 1) {
-                            if (c != x && v != y) {
+                    for (c in xMin..xMax) {
+                        for (v in yMin..yMax) {
+                            if ((c != x || v != y) && playerField[c][v] != 8) {
                                 playerField[c][v] = 2
                             } else continue
                         }
@@ -418,12 +382,14 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         }
         for (x in rowMin1..rowMin2) {
             if (field[x][column] == 8) {
-                for(y in columnMin1..columnMax1) {
-                    field2[x][y] = 2
+                for (y in columnMin1..columnMax1) {
+                    if(field2[x][y] != 8) {
+                        field2[x][y] = 2
+                    } else continue
                 }
                 continue
             } else {
-                for(y in columnMin1..columnMax1) {
+                for (y in columnMin1..columnMax1) {
                     field2[x][y] = 2
                 }
                 break
@@ -431,12 +397,14 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         }
         for (x in rowMax1..rowMax2) {
             if (field[x][column] == 8) {
-                for(y in columnMin1..columnMax1) {
-                    field2[x][y] = 2
+                for (y in columnMin1..columnMax1) {
+                    if(field2[x][y] != 8) {
+                        field2[x][y] = 2
+                    } else continue
                 }
                 continue
             } else {
-                for(y in columnMin1..columnMax1) {
+                for (y in columnMin1..columnMax1) {
                     field2[x][y] = 2
                 }
                 break
@@ -444,12 +412,29 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         }
         for (y in columnMin1..columnMin2) {
             if (field[row][y] == 8) {
-                for(x in rowMin1..rowMax1) {
-                    field2[x][y] = 2
+                for (x in rowMin1..rowMax1) {
+                    if(field2[x][y] != 8) {
+                        field2[x][y] = 2
+                    } else continue
                 }
                 continue
             } else {
-                for(x in rowMin1..rowMax1) {
+                for (x in rowMin1..rowMax1) {
+                    field2[x][y] = 2
+                }
+                break
+            }
+        }
+        for (y in columnMax1..columnMax2) {
+            if (field[row][y] == 8) {
+                for (x in rowMin1..rowMax1) {
+                    if(field2[x][y] != 8) {
+                        field2[x][y] = 2
+                    } else continue
+                }
+                continue
+            } else {
+                for (x in rowMin1..rowMax1) {
                     field2[x][y] = 2
                 }
                 break
