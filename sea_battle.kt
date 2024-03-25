@@ -163,7 +163,7 @@ fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
                 }
             } else {
                 println("Вы уже сюда стреляли!")
-                return false
+                return true
             }
         }
         if (myTurn.length == 3) {
@@ -297,15 +297,16 @@ fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): B
                     if (myField[x][yMax] == 1) {
                         return true
                     }
-                } else {
-                    for (c in xMin..xMax) {
-                        for (v in yMin..yMax) {
-                            if ((c != x || v != y) && playerField[c][v] != 8) {
-                                playerField[c][v] = 2
-                            } else continue
-                        }
-                    }
                 }
+//                else {
+//                    for (c in xMin..xMax) {
+//                        for (v in yMin..yMax) {
+//                            if ((c != x || v != y) && playerField[c][v] != 8) {
+//                                playerField[c][v] = 2
+//                            } else continue
+//                        }
+//                    }
+//                }
             }
         }
     }
@@ -332,12 +333,12 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         field[row][column] = 8
         field2[row][column] = 8
         val rowMin1 = if (row - 1 < 0) 0 else row - 1
-        val rowMax1 = if (row + 1 > 9) 9 else row + 1
-        val columnMin1 = if (column - 1 < 0) 0 else column - 1
-        val columnMax1 = if (column + 1 > 9) 9 else column + 1
         val rowMin2 = if (row - 3 < 0) 0 else row - 3
+        val rowMax1 = if (row + 1 > 9) 9 else row + 1
         val rowMax2 = if (row + 3 > 9) 9 else row + 3
+        val columnMin1 = if (column - 1 < 0) 0 else column - 1
         val columnMin2 = if (column - 3 < 0) 0 else column - 3
+        val columnMax1 = if (column + 1 > 9) 9 else column + 1
         val columnMax2 = if (column + 3 > 9) 9 else column + 3
 
         for (x in rowMin1..rowMin2) {
@@ -381,7 +382,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
             }
         }
         for (x in rowMin1..rowMin2) {
-            if (field[x][column] == 8) {
+            if (field2[x][column] == 8) {
                 for (y in columnMin1..columnMax1) {
                     if(field2[x][y] != 8) {
                         field2[x][y] = 2
@@ -396,7 +397,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
             }
         }
         for (x in rowMax1..rowMax2) {
-            if (field[x][column] == 8) {
+            if (field2[x][column] == 8) {
                 for (y in columnMin1..columnMax1) {
                     if(field2[x][y] != 8) {
                         field2[x][y] = 2
@@ -411,7 +412,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
             }
         }
         for (y in columnMin1..columnMin2) {
-            if (field[row][y] == 8) {
+            if (field2[row][y] == 8) {
                 for (x in rowMin1..rowMax1) {
                     if(field2[x][y] != 8) {
                         field2[x][y] = 2
@@ -426,7 +427,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
             }
         }
         for (y in columnMax1..columnMax2) {
-            if (field[row][y] == 8) {
+            if (field2[row][y] == 8) {
                 for (x in rowMin1..rowMax1) {
                     if(field2[x][y] != 8) {
                         field2[x][y] = 2
