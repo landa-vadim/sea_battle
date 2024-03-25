@@ -7,6 +7,58 @@ fun main() {
     val turn = 0..1
     val whatTurn = turn.random()
 
+    initField(myField)
+    initField(pcField)
+
+    printField(myField)
+    printField(pcField)
+
+
+//    ХОДЫ
+
+    var isMyShipExist = checkAnyShipExist(myField)
+    var isPcShipExist = checkAnyShipExist(pcField)
+
+    while (isMyShipExist && isPcShipExist) {
+        if (whatTurn == 0) {
+            while (myTurn(pcField, enemyField) && checkAnyShipExist(pcField)) {
+                printField(enemyField)
+                printField(pcField)
+            }
+            while (pcTurn(playerField, myField) && checkAnyShipExist(myField)) {
+                printField(myField)
+                printField(playerField)
+            }
+        } else {
+            while (pcTurn(playerField, myField) && checkAnyShipExist(pcField)) {
+                printField(myField)
+                printField(playerField)
+            }
+            while (myTurn(pcField, enemyField) && checkAnyShipExist(myField)) {
+                printField(enemyField)
+                printField(pcField)
+            }
+        }
+
+        isMyShipExist = checkAnyShipExist(myField)
+        isPcShipExist = checkAnyShipExist(pcField)
+    }
+
+    if (isMyShipExist) {
+        println("Вы проиграли!")
+    }
+
+    if (isPcShipExist) {
+        println("Вы выиграли!")
+    }
+}
+
+const val LIVE_DECK = 1
+const val NO_DECK = 2
+const val DAMAGED_DECK = 8
+const val UNKNOWN = 0
+
+fun initField(field: Array<Array<Int>>) {
     var oneDeckShipsCounter = 0
     var twoDeckShipsCounter = 0
     var threeDeckShipsCounter = 0
@@ -16,130 +68,43 @@ fun main() {
     val twoDeckShipAmount = 2
     val threeDeckShipAmount = 1
     val fourDeckShipAmount = 1
+    val turn = 0..1
 
-//    ЦИКЛЫ ПОСТРОЕНИЯ ПОЛЕЙ С КОРОБЛЯМИ
+    for (i in 0 until oneDeckShipAmount) {
+        while (!createOneDeckShip(field)) { }
+    }
 
-    while (oneDeckShipsCounter < oneDeckShipAmount) {
-        if (createOneDeckShip(myField)) {
-            oneDeckShipsCounter++
-        } else continue
-    }
-    oneDeckShipsCounter = 0
-    while (oneDeckShipsCounter < oneDeckShipAmount) {
-        if (createOneDeckShip(pcField)) {
-            oneDeckShipsCounter++
-        } else continue
-    }
-    while (twoDeckShipsCounter < twoDeckShipAmount) {
+    for (i in 0 until twoDeckShipAmount) {
         if (turn.random() == 0) {
-            if (createShipsColumn(myField, deckAmount = 2)) {
-                twoDeckShipsCounter++
-            } else continue
+            while (!createShipsColumn(field, 2)) {}
         } else {
-            if (createShipsRow(myField, deckAmount = 2)) {
-                twoDeckShipsCounter++
-            } else continue
+            while (!createShipsRow(field, 2)) {}
         }
     }
-    twoDeckShipsCounter = 0
-    while (twoDeckShipsCounter < twoDeckShipAmount) {
-        if (turn.random() == 0) {
-            if (createShipsColumn(pcField, deckAmount = 2)) {
-                twoDeckShipsCounter++
-            } else continue
-        } else {
-            if (createShipsRow(pcField, deckAmount = 2)) {
-                twoDeckShipsCounter++
-            } else continue
-        }
-    }
+
     while (threeDeckShipsCounter < threeDeckShipAmount) {
         if (turn.random() == 0) {
-            if (createShipsColumn(myField, deckAmount = 3)) {
+            if (createShipsColumn(field, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         } else {
-            if (createShipsRow(myField, deckAmount = 3)) {
+            if (createShipsRow(field, deckAmount = 3)) {
                 threeDeckShipsCounter++
             } else continue
         }
     }
-    threeDeckShipsCounter = 0
-    while (threeDeckShipsCounter < threeDeckShipAmount) {
-        if (turn.random() == 0) {
-            if (createShipsColumn(pcField, deckAmount = 3)) {
-                threeDeckShipsCounter++
-            } else continue
-        } else {
-            if (createShipsRow(pcField, deckAmount = 3)) {
-                threeDeckShipsCounter++
-            } else continue
-        }
-    }
-
     while (fourDeckShipsCounter < fourDeckShipAmount) {
         if (turn.random() == 0) {
-            if (createShipsColumn(myField, deckAmount = 4)) {
+            if (createShipsColumn(field, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         } else {
-            if (createShipsRow(myField, deckAmount = 4)) {
+            if (createShipsRow(field, deckAmount = 4)) {
                 fourDeckShipsCounter++
             } else continue
         }
-    }
-    fourDeckShipsCounter = 0
-    while (fourDeckShipsCounter < fourDeckShipAmount) {
-        if (turn.random() == 0) {
-            if (createShipsColumn(pcField, deckAmount = 4)) {
-                fourDeckShipsCounter++
-            } else continue
-        } else {
-            if (createShipsRow(pcField, deckAmount = 4)) {
-                fourDeckShipsCounter++
-            } else continue
-        }
-    }
-
-    printField(myField)
-
-    printField(pcField)
-
-//    ХОДЫ
-
-    while (checkLastShip(myField) && checkLastShip(pcField)) {
-        if (whatTurn == 0) {
-            while (myTurn(pcField, enemyField) && checkLastShip(pcField)) {
-                printField(enemyField)
-                printField(pcField)
-                continue
-            }
-            while (pcTurn(playerField, myField) && checkLastShip(myField)) {
-                printField(myField)
-                printField(playerField)
-                continue
-            }
-        } else {
-            while (pcTurn(playerField, myField) && checkLastShip(pcField)) {
-                printField(myField)
-                printField(playerField)
-                continue
-            }
-            while (myTurn(pcField, enemyField) && checkLastShip(myField)) {
-                printField(enemyField)
-                printField(pcField)
-                continue
-            }
-        }
-    }
-    if (!checkLastShip(myField)) {
-        println("Вы проиграли!")
-    }
-    if (!checkLastShip(pcField)) {
-        println("Вы выиграли!")
     }
 }
-
 
 // ФУНКЦИЯ МОЕГО ХОДА
 
@@ -152,7 +117,7 @@ fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
             myTurn.toCharArray()
             val column = letterArray.indexOf(myTurn[0])
             val row = myTurn[1].digitToInt() - 1
-            if (enemyField[row][column] != 8) {
+            if (enemyField[row][column] != DAMAGED_DECK) {
                 if (checkShoot(pcField, row, column, enemyField)) {
                     pcField[row][column] = 8
                     enemyField[row][column] = 8
@@ -315,12 +280,12 @@ fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): B
 
 // ФУНКЦИЯ ПРОВЕРКИ НА ПРОИГРЫШ
 
-fun checkLastShip(field: Array<Array<Int>>): Boolean {
+fun checkAnyShipExist(field: Array<Array<Int>>): Boolean {
     for (x in 0..9) {
         for (y in 0..9) {
             if (field[x][y] == 1) {
                 return true
-            } else continue
+            }
         }
     }
     return false
@@ -332,8 +297,8 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
     if (field[row][column] == 1) {
         field[row][column] = 8
         field2[row][column] = 8
-        val rowMin1 = if (row - 1 < 0) 0 else row - 1
-        val rowMin2 = if (row - 3 < 0) 0 else row - 3
+        val leftBorder = if (row - 1 < 0) 0 else row - 1
+        val maxLeftBorder = if (row - 3 < 0) 0 else row - 3
         val rowMax1 = if (row + 1 > 9) 9 else row + 1
         val rowMax2 = if (row + 3 > 9) 9 else row + 3
         val columnMin1 = if (column - 1 < 0) 0 else column - 1
@@ -341,12 +306,12 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         val columnMax1 = if (column + 1 > 9) 9 else column + 1
         val columnMax2 = if (column + 3 > 9) 9 else column + 3
 
-        for (x in rowMin1..rowMin2) {
+        for (x in leftBorder..maxLeftBorder) {
             if (field[x][column] != 2) {
                 if (field[x][column] == 1) {
                     println("Ранил!")
                     return true
-                } else continue
+                }
             } else {
                 break
             }
@@ -356,7 +321,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 if (field[x][column] == 1) {
                     println("Ранил!")
                     return true
-                } else continue
+                }
             } else {
                 break
             }
@@ -366,7 +331,7 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 if (field[row][y] == 1) {
                     println("Ранил!")
                     return true
-                } else continue
+                }
             } else {
                 break
             }
@@ -376,19 +341,18 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 if (field[row][y] == 1) {
                     println("Ранил!")
                     return true
-                } else continue
+                }
             } else {
                 break
             }
         }
-        for (x in rowMin1..rowMin2) {
+        for (x in leftBorder..maxLeftBorder) {
             if (field2[x][column] == 8) {
                 for (y in columnMin1..columnMax1) {
-                    if(field2[x][y] != 8) {
+                    if (field2[x][y] != 8) {
                         field2[x][y] = 2
-                    } else continue
+                    }
                 }
-                continue
             } else {
                 for (y in columnMin1..columnMax1) {
                     field2[x][y] = 2
@@ -399,11 +363,10 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         for (x in rowMax1..rowMax2) {
             if (field2[x][column] == 8) {
                 for (y in columnMin1..columnMax1) {
-                    if(field2[x][y] != 8) {
+                    if (field2[x][y] != 8) {
                         field2[x][y] = 2
-                    } else continue
+                    }
                 }
-                continue
             } else {
                 for (y in columnMin1..columnMax1) {
                     field2[x][y] = 2
@@ -413,14 +376,13 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         }
         for (y in columnMin1..columnMin2) {
             if (field2[row][y] == 8) {
-                for (x in rowMin1..rowMax1) {
-                    if(field2[x][y] != 8) {
+                for (x in leftBorder..rowMax1) {
+                    if (field2[x][y] != 8) {
                         field2[x][y] = 2
-                    } else continue
+                    }
                 }
-                continue
             } else {
-                for (x in rowMin1..rowMax1) {
+                for (x in leftBorder..rowMax1) {
                     field2[x][y] = 2
                 }
                 break
@@ -428,14 +390,13 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         }
         for (y in columnMax1..columnMax2) {
             if (field2[row][y] == 8) {
-                for (x in rowMin1..rowMax1) {
-                    if(field2[x][y] != 8) {
+                for (x in leftBorder..rowMax1) {
+                    if (field2[x][y] != 8) {
                         field2[x][y] = 2
-                    } else continue
+                    }
                 }
-                continue
             } else {
-                for (x in rowMin1..rowMax1) {
+                for (x in leftBorder..rowMax1) {
                     field2[x][y] = 2
                 }
                 break
@@ -650,3 +611,4 @@ fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
         return false
     }
 }
+
