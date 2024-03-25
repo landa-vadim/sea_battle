@@ -44,7 +44,6 @@ fun main() {
         isPcShipExist = checkAnyShipExist(pcField)
     }
 
-    // Add some logic
     if (isMyShipExist) {
         println("Вы проиграли!")
     }
