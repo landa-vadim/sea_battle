@@ -11,8 +11,6 @@ fun main() {
     initField(pcField)
 
     printField(myField)
-    printField(pcField)
-
 
 //    ХОДЫ
 
@@ -23,46 +21,47 @@ fun main() {
         if (whatTurn == 0) {
             while (myTurn(pcField, enemyField) && checkAnyShipExist(pcField)) {
                 printField(enemyField)
-                printField(pcField)
             }
+            printField(enemyField)
+            while (checkAnyShipExist(pcField) && pcTurn(playerField, myField) && checkAnyShipExist(myField)) {
+                printField(myField)
+                printField(playerField)
+            }
+            printField(myField)
+            printField(playerField)
+        } else {
             while (pcTurn(playerField, myField) && checkAnyShipExist(myField)) {
                 printField(myField)
                 printField(playerField)
             }
-        } else {
-            while (pcTurn(playerField, myField) && checkAnyShipExist(pcField)) {
-                printField(myField)
-                printField(playerField)
-            }
-            while (myTurn(pcField, enemyField) && checkAnyShipExist(myField)) {
+            printField(myField)
+            printField(playerField)
+            while (checkAnyShipExist(myField) && myTurn(pcField, enemyField) && checkAnyShipExist(pcField)) {
                 printField(enemyField)
-                printField(pcField)
             }
+            printField(enemyField)
         }
-
         isMyShipExist = checkAnyShipExist(myField)
         isPcShipExist = checkAnyShipExist(pcField)
     }
-
     if (isMyShipExist) {
-        println("Вы проиграли!")
-    }
-
-    if (isPcShipExist) {
         println("Вы выиграли!")
     }
+    if (isPcShipExist) {
+        println("Вы проиграли!")
+    }
 }
+
+// КОНСТАНТЫ СОСТОЯНИЯ КЛЕТКИ ПОЛЯ
 
 const val LIVE_DECK = 1
 const val NO_DECK = 2
 const val DAMAGED_DECK = 8
 const val UNKNOWN = 0
 
+// ФУНКЦИЯ ЗАПОЛНЕНИЯ ПОЛЕЙ
+
 fun initField(field: Array<Array<Int>>) {
-    var oneDeckShipsCounter = 0
-    var twoDeckShipsCounter = 0
-    var threeDeckShipsCounter = 0
-    var fourDeckShipsCounter = 0
 
     val oneDeckShipAmount = 3
     val twoDeckShipAmount = 2
@@ -71,37 +70,34 @@ fun initField(field: Array<Array<Int>>) {
     val turn = 0..1
 
     for (i in 0 until oneDeckShipAmount) {
-        while (!createOneDeckShip(field)) { }
+        while (!createOneDeckShip(field)) {
+        }
     }
-
     for (i in 0 until twoDeckShipAmount) {
         if (turn.random() == 0) {
-            while (!createShipsColumn(field, 2)) {}
+            while (!createShipsColumn(field, 2)) {
+            }
         } else {
-            while (!createShipsRow(field, 2)) {}
+            while (!createShipsRow(field, 2)) {
+            }
         }
     }
-
-    while (threeDeckShipsCounter < threeDeckShipAmount) {
+    for (i in 0 until threeDeckShipAmount) {
         if (turn.random() == 0) {
-            if (createShipsColumn(field, deckAmount = 3)) {
-                threeDeckShipsCounter++
-            } else continue
+            while (!createShipsColumn(field, 3)) {
+            }
         } else {
-            if (createShipsRow(field, deckAmount = 3)) {
-                threeDeckShipsCounter++
-            } else continue
+            while (!createShipsRow(field, 3)) {
+            }
         }
     }
-    while (fourDeckShipsCounter < fourDeckShipAmount) {
+    for (i in 0 until fourDeckShipAmount) {
         if (turn.random() == 0) {
-            if (createShipsColumn(field, deckAmount = 4)) {
-                fourDeckShipsCounter++
-            } else continue
+            while (!createShipsColumn(field, 4)) {
+            }
         } else {
-            if (createShipsRow(field, deckAmount = 4)) {
-                fourDeckShipsCounter++
-            } else continue
+            while (!createShipsRow(field, 4)) {
+            }
         }
     }
 }
@@ -117,31 +113,35 @@ fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
             myTurn.toCharArray()
             val column = letterArray.indexOf(myTurn[0])
             val row = myTurn[1].digitToInt() - 1
-            if (enemyField[row][column] != DAMAGED_DECK) {
+            if (enemyField[row][column] != DAMAGED_DECK && enemyField[row][column] != NO_DECK) {
                 if (checkShoot(pcField, row, column, enemyField)) {
-                    pcField[row][column] = 8
-                    enemyField[row][column] = 8
+                    pcField[row][column] = DAMAGED_DECK
+                    enemyField[row][column] = DAMAGED_DECK
                     return true
                 } else {
-                    println("Мимо!")
                     return false
                 }
             } else {
-                println("Вы уже сюда стреляли!")
-                return true
+                if (enemyField[row][column] != DAMAGED_DECK) {
+                    println("Вы уже сюда стреляли!")
+                    return true
+                }
+                if (enemyField[row][column] != NO_DECK) {
+                    println("Вы уже знаете, что здесь не может быть корабля!")
+                    return true
+                }
             }
         }
         if (myTurn.length == 3) {
             myTurn.toCharArray()
             val column = letterArray.indexOf(myTurn[0])
             val row = 9
-            if (enemyField[row][column] != 8) {
+            if (enemyField[row][column] != DAMAGED_DECK) {
                 if (checkShoot(pcField, row, column, enemyField)) {
-                    pcField[row][column] = 8
-                    enemyField[row][column] = 8
+                    pcField[row][column] = DAMAGED_DECK
+                    enemyField[row][column] = DAMAGED_DECK
                     return true
                 } else {
-                    println("Мимо!")
                     return false
                 }
             } else {
@@ -150,49 +150,68 @@ fun myTurn(pcField: Array<Array<Int>>, enemyField: Array<Array<Int>>): Boolean {
             }
         } else return false
     } else {
-        return false
+        return true
     }
 }
 
-// ФУНКЦИЯ НАЧАЛЬНОГО ХОДА ПК
+// ФУНКЦИЯ ХОДА ПК
 
 fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean {
-    var rowIndex = 0
-    var columnIndex = 0
+    var rowIndex = 11
+    var columnIndex = 11
     if (pcMustExecute(myField, playerField)) {
         for (x in 0..9) {
             for (y in 0..9) {
-                if (playerField[x][y] == 8) {
-                    for (c in x - 1..x - 2) {
-                        if (playerField[c][y] == 8) {
-                            rowIndex = c - 1
+                val bottomBoard = if (x + 1 > 9) 9 else x + 1
+                val topBoard = if (x - 1 < 0) 0 else x - 1
+                val rightBoard = if (y + 1 > 9) 9 else y + 1
+                val leftBoard = if (y - 1 < 0) 0 else y - 1
+                val bottomBoardMax = if (bottomBoard + 1 > 9) 9 else bottomBoard + 1
+                val rightBoardMax = if (rightBoard + 1 > 9) 9 else rightBoard + 1
+                if (playerField[x][y] == DAMAGED_DECK) {
+                    if (playerField[bottomBoard][y] == DAMAGED_DECK) {
+                        for (c in topBoard..bottomBoardMax) {
+                            if (playerField[c][y] != NO_DECK && playerField[c][y] != DAMAGED_DECK) {
+                                rowIndex = c
+                                columnIndex = y
+                                break
+                            }
+                        }
+                    }
+                    if (playerField[x][rightBoard] == DAMAGED_DECK) {
+                        for (v in leftBoard..rightBoardMax) {
+                            if (playerField[x][v] != NO_DECK && playerField[x][v] != DAMAGED_DECK) {
+                                rowIndex = x
+                                columnIndex = v
+                                break
+                            }
+                        }
+                    }
+                    if (playerField[bottomBoard][y] == UNKNOWN || playerField[topBoard][y] == UNKNOWN || playerField[x][rightBoard] == UNKNOWN || playerField[x][leftBoard] == UNKNOWN) {
+                        if (playerField[bottomBoard][y] == UNKNOWN) {
+                            rowIndex = bottomBoard
                             columnIndex = y
-                            continue
+                            break
                         }
-                    }
-                    for (c in x + 1..x + 2) {
-                        if (playerField[c][y] == 8) {
-                            rowIndex = c + 1
+                        if (playerField[topBoard][y] == UNKNOWN) {
+                            rowIndex = topBoard
                             columnIndex = y
-                            continue
+                            break
                         }
-                    }
-                    for (v in y - 1..y - 2) {
-                        if (playerField[x][v] == 8) {
+                        if (playerField[x][rightBoard] == UNKNOWN) {
                             rowIndex = x
-                            columnIndex = v - 1
-                            continue
+                            columnIndex = rightBoard
+                            break
                         }
-                    }
-                    for (v in y + 1..y + 2) {
-                        if (playerField[x][v] == 8) {
+                        if (playerField[x][leftBoard] == UNKNOWN) {
                             rowIndex = x
-                            columnIndex = v + 1
-                            continue
+                            columnIndex = leftBoard
+                            break
                         }
                     }
                 }
             }
+            if (rowIndex < 11 && columnIndex < 11) break
         }
     } else {
         rowIndex = (0..9).random()
@@ -200,11 +219,9 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
     }
     val letterArray = charArrayOf('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К')
     val numbersArray = charArrayOf('1', '2', '3', '4', '5', '6', '7', '8', '9', ' ')
-    while (playerField[rowIndex][columnIndex] == 8) {
+    while (playerField[rowIndex][columnIndex] == DAMAGED_DECK || playerField[rowIndex][columnIndex] == NO_DECK) {
         rowIndex = (0..9).random()
         columnIndex = (0..9).random()
-
-        println("playerField[$rowIndex][$columnIndex] = ${playerField[rowIndex][columnIndex]}")
     }
     val num = numbersArray[rowIndex]
     val let = letterArray[columnIndex]
@@ -215,21 +232,6 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
         println("ПК бьет в $let$num")
     }
     if (checkShoot(myField, rowIndex, columnIndex, playerField)) {
-//        if (!pcMustExecute(myField, playerField)) {
-//            for (x in rowIndex - 3..rowIndex + 3) {
-//                for (y in columnIndex - 3..columnIndex + 3) {
-//                    if (playerField[x][y] == 8) {
-//                        for (c in x - 1..x + 1) {
-//                            for (v in y - 1..y + 1) {
-//                                if (myField[c][v] != 8) {
-//                                    playerField[c][v] = 2
-//                                } else continue
-//                            }
-//                        }
-//                    } else continue
-//                }
-//            }
-//        }
         return true
     } else return false
 }
@@ -239,40 +241,31 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
 fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): Boolean {
     for (x in 0..9) {
         for (y in 0..9) {
-            val xMin = if (x - 1 < 0) 0 else x - 1
-            val xMax = if (x + 1 > 9) 9 else x + 1
-            val yMin = if (y - 1 < 0) 0 else y - 1
-            val yMax = if (y + 1 > 9) 9 else y + 1
-            if (myField[x][y] == 8) {
-                if (myField[xMin][y] != 2) {
-                    if (myField[xMin][y] == 1) {
+            val topBoard = if (x - 1 < 0) 0 else x - 1
+            val bottomBoard = if (x + 1 > 9) 9 else x + 1
+            val leftBoard = if (y - 1 < 0) 0 else y - 1
+            val rightBoard = if (y + 1 > 9) 9 else y + 1
+            if (myField[x][y] == DAMAGED_DECK) {
+                if (myField[topBoard][y] != NO_DECK) {
+                    if (myField[topBoard][y] == LIVE_DECK) {
                         return true
                     }
                 }
-                if (myField[xMax][y] != 2) {
-                    if (myField[xMax][y] == 1) {
+                if (myField[bottomBoard][y] != NO_DECK) {
+                    if (myField[bottomBoard][y] == LIVE_DECK) {
                         return true
                     }
                 }
-                if (myField[x][yMin] != 2) {
-                    if (myField[x][yMin] == 1) {
+                if (myField[x][leftBoard] != NO_DECK) {
+                    if (myField[x][leftBoard] == LIVE_DECK) {
                         return true
                     }
                 }
-                if (myField[x][yMax] != 2) {
-                    if (myField[x][yMax] == 1) {
+                if (myField[x][rightBoard] != NO_DECK) {
+                    if (myField[x][rightBoard] == LIVE_DECK) {
                         return true
                     }
                 }
-//                else {
-//                    for (c in xMin..xMax) {
-//                        for (v in yMin..yMax) {
-//                            if ((c != x || v != y) && playerField[c][v] != 8) {
-//                                playerField[c][v] = 2
-//                            } else continue
-//                        }
-//                    }
-//                }
             }
         }
     }
@@ -284,7 +277,7 @@ fun pcMustExecute(myField: Array<Array<Int>>, playerField: Array<Array<Int>>): B
 fun checkAnyShipExist(field: Array<Array<Int>>): Boolean {
     for (x in 0..9) {
         for (y in 0..9) {
-            if (field[x][y] == 1) {
+            if (field[x][y] == LIVE_DECK) {
                 return true
             }
         }
@@ -295,21 +288,21 @@ fun checkAnyShipExist(field: Array<Array<Int>>): Boolean {
 // ФУНКЦИЯ ПРОВЕРКИ ТОЧНОСТИ ВЫСТРЕЛА
 
 fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Array<Int>>): Boolean {
-    if (field[row][column] == 1) {
-        field[row][column] = 8
-        field2[row][column] = 8
-        val leftBorder = if (row - 1 < 0) 0 else row - 1
-        val maxLeftBorder = if (row - 3 < 0) 0 else row - 3
-        val rowMax1 = if (row + 1 > 9) 9 else row + 1
-        val rowMax2 = if (row + 3 > 9) 9 else row + 3
-        val columnMin1 = if (column - 1 < 0) 0 else column - 1
-        val columnMin2 = if (column - 3 < 0) 0 else column - 3
-        val columnMax1 = if (column + 1 > 9) 9 else column + 1
-        val columnMax2 = if (column + 3 > 9) 9 else column + 3
+    if (field[row][column] == LIVE_DECK) {
+        field[row][column] = DAMAGED_DECK
+        field2[row][column] = DAMAGED_DECK
+        val topBorder = if (row - 1 < 0) 0 else row - 1
+        val maxTopBorder = if (row - 4 < 0) 0 else row - 4
+        val bottomBorder = if (row + 1 > 9) 9 else row + 1
+        val maxBottomBorder = if (row + 4 > 9) 9 else row + 4
+        val leftBorder = if (column - 1 < 0) 0 else column - 1
+        val maxLeftBorder = if (column - 4 < 0) 0 else column - 4
+        val rightBorder = if (column + 1 > 9) 9 else column + 1
+        val maxRightBorder = if (column + 4 > 9) 9 else column + 4
 
-        for (x in leftBorder..maxLeftBorder) {
-            if (field[x][column] != 2) {
-                if (field[x][column] == 1) {
+        for (x in topBorder downTo maxTopBorder) {
+            if (field[x][column] != NO_DECK) {
+                if (field[x][column] == LIVE_DECK) {
                     println("Ранил!")
                     return true
                 }
@@ -317,9 +310,9 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 break
             }
         }
-        for (x in rowMax1..rowMax2) {
-            if (field[x][column] != 2) {
-                if (field[x][column] == 1) {
+        for (x in bottomBorder..maxBottomBorder) {
+            if (field[x][column] != NO_DECK) {
+                if (field[x][column] == LIVE_DECK) {
                     println("Ранил!")
                     return true
                 }
@@ -327,9 +320,9 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 break
             }
         }
-        for (y in columnMin1..columnMin2) {
-            if (field[row][y] != 2) {
-                if (field[row][y] == 1) {
+        for (y in leftBorder downTo maxLeftBorder) {
+            if (field[row][y] != NO_DECK) {
+                if (field[row][y] == LIVE_DECK) {
                     println("Ранил!")
                     return true
                 }
@@ -337,9 +330,9 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 break
             }
         }
-        for (y in columnMax1..columnMax2) {
-            if (field[row][y] != 2) {
-                if (field[row][y] == 1) {
+        for (y in rightBorder..maxRightBorder) {
+            if (field[row][y] != NO_DECK) {
+                if (field[row][y] == LIVE_DECK) {
                     println("Ранил!")
                     return true
                 }
@@ -347,58 +340,58 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
                 break
             }
         }
-        for (x in leftBorder..maxLeftBorder) {
-            if (field2[x][column] == 8) {
-                for (y in columnMin1..columnMax1) {
-                    if (field2[x][y] != 8) {
-                        field2[x][y] = 2
+        for (x in topBorder downTo maxTopBorder) {
+            if (field2[x][column] == DAMAGED_DECK) {
+                for (y in leftBorder..rightBorder) {
+                    if (field2[x][y] != DAMAGED_DECK) {
+                        field2[x][y] = NO_DECK
                     }
                 }
             } else {
-                for (y in columnMin1..columnMax1) {
-                    field2[x][y] = 2
+                for (y in leftBorder..rightBorder) {
+                    field2[x][y] = NO_DECK
                 }
                 break
             }
         }
-        for (x in rowMax1..rowMax2) {
-            if (field2[x][column] == 8) {
-                for (y in columnMin1..columnMax1) {
-                    if (field2[x][y] != 8) {
-                        field2[x][y] = 2
+        for (x in bottomBorder..maxBottomBorder) {
+            if (field2[x][column] == DAMAGED_DECK) {
+                for (y in leftBorder..rightBorder) {
+                    if (field2[x][y] != DAMAGED_DECK) {
+                        field2[x][y] = NO_DECK
                     }
                 }
             } else {
-                for (y in columnMin1..columnMax1) {
-                    field2[x][y] = 2
+                for (y in leftBorder..rightBorder) {
+                    field2[x][y] = NO_DECK
                 }
                 break
             }
         }
-        for (y in columnMin1..columnMin2) {
-            if (field2[row][y] == 8) {
-                for (x in leftBorder..rowMax1) {
-                    if (field2[x][y] != 8) {
-                        field2[x][y] = 2
+        for (y in leftBorder downTo maxLeftBorder) {
+            if (field2[row][y] == DAMAGED_DECK) {
+                for (x in topBorder..bottomBorder) {
+                    if (field2[x][y] != DAMAGED_DECK) {
+                        field2[x][y] = NO_DECK
                     }
                 }
             } else {
-                for (x in leftBorder..rowMax1) {
-                    field2[x][y] = 2
+                for (x in topBorder..bottomBorder) {
+                    field2[x][y] = NO_DECK
                 }
                 break
             }
         }
-        for (y in columnMax1..columnMax2) {
-            if (field2[row][y] == 8) {
-                for (x in leftBorder..rowMax1) {
-                    if (field2[x][y] != 8) {
-                        field2[x][y] = 2
+        for (y in rightBorder..maxRightBorder) {
+            if (field2[row][y] == DAMAGED_DECK) {
+                for (x in topBorder..bottomBorder) {
+                    if (field2[x][y] != DAMAGED_DECK) {
+                        field2[x][y] = NO_DECK
                     }
                 }
             } else {
-                for (x in leftBorder..rowMax1) {
-                    field2[x][y] = 2
+                for (x in topBorder..bottomBorder) {
+                    field2[x][y] = NO_DECK
                 }
                 break
             }
@@ -406,9 +399,9 @@ fun checkShoot(field: Array<Array<Int>>, row: Int, column: Int, field2: Array<Ar
         println("Убил!")
         return true
     } else {
-        println("Мимо!")
-        field[row][column] = 2
-        field2[row][column] = 2
+        print("Мимо!")
+        field[row][column] = NO_DECK
+        field2[row][column] = NO_DECK
         return false
     }
 }
@@ -493,7 +486,7 @@ fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
     val rowIndex = (0..9).random()
     val columnIndex = (0..9).random()
 
-    if (field[rowIndex][columnIndex] == 0) {
+    if (field[rowIndex][columnIndex] == UNKNOWN) {
 
         val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
         val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
@@ -506,7 +499,7 @@ fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
 
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
+                if (field[x][y] == UNKNOWN || field[x][y] == NO_DECK) {
                     continue
                 } else {
                     return false
@@ -516,9 +509,9 @@ fun createOneDeckShip(field: Array<Array<Int>>): Boolean {
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
                 if (x != rowIndex || y != columnIndex) {
-                    field[x][y] = 2
+                    field[x][y] = NO_DECK
                 } else {
-                    field[x][y] = 1
+                    field[x][y] = LIVE_DECK
                 }
             }
         }
@@ -534,7 +527,7 @@ fun createShipsColumn(field: Array<Array<Int>>, deckAmount: Int): Boolean {
     val rowIndex = (0..9).random()
     val columnIndex = (0..10 - deckAmount).random()
 
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex][columnIndex + deckAmount - 1] == 0) {
+    if (field[rowIndex][columnIndex] == UNKNOWN && field[rowIndex][columnIndex + deckAmount - 1] == UNKNOWN) {
 
         val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
         val maxRowIndex = if (rowIndex + 1 > 9) 9 else rowIndex + 1
@@ -547,7 +540,7 @@ fun createShipsColumn(field: Array<Array<Int>>, deckAmount: Int): Boolean {
 
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
+                if (field[x][y] == UNKNOWN || field[x][y] == NO_DECK) {
                     continue
                 } else {
                     return false
@@ -556,10 +549,10 @@ fun createShipsColumn(field: Array<Array<Int>>, deckAmount: Int): Boolean {
         }
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
-                field[x][y] = 2
+                field[x][y] = NO_DECK
                 for (i in 1..deckAmount) {
                     if (x == rowIndex && y == columnIndex + i - 1) {
-                        field[x][y] = 1
+                        field[x][y] = LIVE_DECK
                     }
                 }
             }
@@ -577,7 +570,7 @@ fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
     val rowIndex = (0..10 - deckAmount).random()
     val columnIndex = (0..9).random()
 
-    if (field[rowIndex][columnIndex] == 0 && field[rowIndex + deckAmount - 1][columnIndex] == 0) {
+    if (field[rowIndex][columnIndex] == UNKNOWN && field[rowIndex + deckAmount - 1][columnIndex] == UNKNOWN) {
 
         val minRowIndex = if (rowIndex - 1 < 0) 0 else rowIndex - 1
         val maxRowIndex = if (rowIndex + deckAmount - 1 == 9) 9 else rowIndex + deckAmount
@@ -590,7 +583,7 @@ fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
 
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
-                if (field[x][y] == 0 || field[x][y] == 2) {
+                if (field[x][y] == UNKNOWN || field[x][y] == NO_DECK) {
                     continue
                 } else {
                     return false
@@ -599,10 +592,10 @@ fun createShipsRow(field: Array<Array<Int>>, deckAmount: Int): Boolean {
         }
         for (x in rowIndexRange) {
             for (y in columnIndexRange) {
-                field[x][y] = 2
+                field[x][y] = NO_DECK
                 for (i in 1..deckAmount) {
                     if (x == rowIndex + i - 1 && y == columnIndex) {
-                        field[x][y] = 1
+                        field[x][y] = LIVE_DECK
                     }
                 }
             }
