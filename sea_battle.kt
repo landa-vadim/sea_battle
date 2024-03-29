@@ -183,7 +183,7 @@ fun pcTurn(playerField: Array<Array<Int>>, myField: Array<Array<Int>>): Boolean 
                             }
                         }
                     }
-                    if (playerField[bottomBoard][y] == UNKNOWN || playerField[topBoard][y] == UNKNOWN || playerField[x][rightBoard] == UNKNOWN || playerField[x][leftBoard] == UNKNOWN) {
+                    if (rowIndex > 10 && columnIndex > 10 && (playerField[bottomBoard][y] == UNKNOWN || playerField[topBoard][y] == UNKNOWN || playerField[x][rightBoard] == UNKNOWN || playerField[x][leftBoard] == UNKNOWN)) {
                         if (playerField[bottomBoard][y] == UNKNOWN) {
                             rowIndex = bottomBoard
                             columnIndex = y
