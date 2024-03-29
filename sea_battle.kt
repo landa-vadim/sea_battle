@@ -25,17 +25,13 @@ fun main() {
             printField(enemyField)
             while (checkAnyShipExist(pcField) && pcTurn(playerField, myField) && checkAnyShipExist(myField)) {
                 printField(myField)
-                printField(playerField)
             }
             printField(myField)
-            printField(playerField)
         } else {
             while (pcTurn(playerField, myField) && checkAnyShipExist(myField)) {
                 printField(myField)
-                printField(playerField)
             }
             printField(myField)
-            printField(playerField)
             while (checkAnyShipExist(myField) && myTurn(pcField, enemyField) && checkAnyShipExist(pcField)) {
                 printField(enemyField)
             }
